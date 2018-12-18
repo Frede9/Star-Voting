@@ -1,3 +1,6 @@
+import Data.Function (on)
+import Data.List (sortBy)
+
 data Wahlobjekt = Wahlobjekt {
     bezeichnung   :: String,
     wahlErgebnis  :: Double
@@ -7,28 +10,22 @@ data Voter = Voter {
   vote :: [(String,Double)]
 } deriving (Show)
 
-
-type VoterList = [Voter]
-
-
 kandidat1 = Wahlobjekt "kandidat1" 0
 kandidat2 = Wahlobjekt "kandidat2" 0
-listeKandidaten = [kandidat1,kandidat2]
+kandidat3 = Wahlobjekt "kandidat3" 0
+kandidat4 = Wahlobjekt "kandidat4" 0
+kandidat5 = Wahlobjekt "kandidat5" 0
+kandidat6 = Wahlobjekt "kandidat6" 0
+listeKandidaten = [kandidat1,kandidat2,kandidat3,kandidat4,kandidat5,kandidat6]
 
-voter1=Voter [("kandidat1",3),("kandidat2",2)]
-voter2=Voter [("kandidat1",1),("kandidat2",4)]
-listeVoter = [voter1,voter2]
+voter1=Voter [("kandidat1",3),("kandidat2",2),("kandidat3",1),("kandidat4",5),("kandidat5",2),("kandidat6",0)]
+voter2=Voter [("kandidat1",1),("kandidat2",4),("kandidat3",1),("kandidat4",5),("kandidat5",2),("kandidat6",0)]
+voter3=Voter [("kandidat1",1),("kandidat2",4),("kandidat3",1),("kandidat4",5),("kandidat5",2),("kandidat6",0)]
+voter4=Voter [("kandidat1",1),("kandidat2",4),("kandidat3",1),("kandidat4",5),("kandidat5",2),("kandidat6",0)]
+voter5=Voter [("kandidat1",1),("kandidat2",4),("kandidat3",1),("kandidat4",5),("kandidat5",2),("kandidat6",0)]
+voter6=Voter [("kandidat1",1),("kandidat2",4),("kandidat3",1),("kandidat4",5),("kandidat5",2),("kandidat6",0)]
+listeVoter = [voter1,voter2,voter3,voter4,voter5,voter6]
 
-
---getVoter[] = []
---getVoter(x:xs) ys = getKanidat x ys
---getKandidat x [] = 0
---getKandidat x (y:ys)
--- | fst(head(vote x)) == (bezeichnung y) =  add x y
--- | otherwise = getKandidat x ys
-
-
--- add x y = snd(head(vote x)) + (wahlErgebnis y)
 
 filteredVoter :: Voter -> Wahlobjekt -> Voter
 filteredVoter voter wahlobjekt = Voter (filter ((==bezeichnung wahlobjekt).fst) (vote voter))
@@ -47,6 +44,18 @@ getResults (x:xs) voters
         | null (x:xs) = []
         | length (x:xs) == 1 = (Wahlobjekt (bezeichnung x) (getRating voters x)) : []
         | otherwise = (Wahlobjekt (bezeichnung x) (getRating voters x)) : getResults xs voters
+
+
+getTwoHighest :: [Wahlobjekt] -> [Wahlobjekt]
+getTwoHighest xs
+        | null xs = []
+        | length(xs) <= 2 = xs
+        | otherwise = drop (length sorted - 2) sorted
+          where
+            sorted = sortBy (compare `on` wahlErgebnis) xs
+
+
+
 
 -- ZUM Testen : "getResults listeKandidaten listeVoter" in Konsole eingeben, gibt eine Liste mit den Wahlobjekten und Ergebnissen zurück
 
