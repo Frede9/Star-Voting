@@ -17,7 +17,6 @@ data Vote = Vote {
     stars :: Double
 } deriving (Show, Eq)
 
-
 data Voter = Voter {
   votes :: [Vote]
 } deriving (Show, Eq)
@@ -28,7 +27,7 @@ main = do
   let listOfVoters = getListOfVoters voters
   let resultList = Results {rlist = getResults listOfVoters myMap}
   let besteKandidaten = getRunoffCanidates resultList
-  let filtered = filterRunoffCanidatesVotes listOfVoters besteKandidaten
+  let filtered = sort(filterRunoffCanidatesVotes listOfVoters besteKandidaten)
   let runoff = doRunoff (rlist besteKandidaten) filtered
   print besteKandidaten
   putStrLn "Gefilterte Votes nach dem RunOff\n"
@@ -104,22 +103,23 @@ checkIfSameScore xs (y:ys)
 
 filterRunoffCanidatesVotes :: [Voter] -> Results -> [Voter]
 filterRunoffCanidatesVotes [] _ = []
-filterRunoffCanidatesVotes (x:xs) y = sort([] ++ [Voter (helpFunctionFORCV (votes x) y)] ++ filterRunoffCanidatesVotes xs y)
+filterRunoffCanidatesVotes (x:xs) y = [Voter (helpFunctionFORCV (votes x) y)] ++ filterRunoffCanidatesVotes xs y
 
 
 helpFunctionFORCV :: [Vote] -> Results -> [Vote]
 helpFunctionFORCV [] _ = []
 helpFunctionFORCV (x:xs) y
-      | firstCandidate == (candidate x) = x : helpFunctionFORCV xs y
-      | secondCandidate == (candidate x) = x : helpFunctionFORCV xs y
-      | otherwise  = helpFunctionFORCV xs y
-        where
-          firstCandidate = fst(head(rlist y))
-          secondCandidate = fst(last(rlist y))
+  | firstCandidate == (candidate x) = x : helpFunctionFORCV xs y
+  | secondCandidate == (candidate x) = x : helpFunctionFORCV xs y
+  | otherwise  = helpFunctionFORCV xs y
+    where
+      firstCandidate = fst(head(rlist y))
+      secondCandidate = fst(last(rlist y))
 
 sort :: [Voter] -> [Voter]
 sort [] = []
-sort (x:xs) = [] ++ [Voter (sortBy (compare `on` candidate) (votes x))] ++ sort xs
+sort (x:xs) = [Voter (sortBy (compare `on` candidate) (votes x))] ++ sort xs
+
 
 
 -- Zum Testen doRunoff (rlist(getRunoffCanidates countedResults)) filterVotes
