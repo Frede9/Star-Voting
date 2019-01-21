@@ -22,12 +22,32 @@ data Voter = Voter {
 } deriving (Show, Eq)
 
 main = do
-  voters <- runX (parseXML "example.xml" >>> getVotes)
+  voters <- runX (parseXML "votes.xml" >>> getVotes)
+  candidates <- runX (parseXML "candidates.xml" >>> getCandidates)
   let myMap  = Map.empty
-  let listOfVoters = getListOfVoters voters
+  let listOfVoters = getListOfVoters voters candidates
   let resultList = Results {rlist = getResults listOfVoters myMap}
   let besteKandidaten = getRunoffCanidates resultList
-  let filtered = sort(filterRunoffCanidatesVotes listOfVoters besteKandidaten)
+  if (length (rlist besteKandidaten) > 2)
+    then do reElection
+    else do
+         let filtered = filterRunoffCanidatesVotes listOfVoters besteKandidaten
+         let runoff = doRunoff (rlist besteKandidaten) filtered
+         print besteKandidaten
+         putStrLn "Gefilterte Votes nach dem RunOff\n"
+         print filtered
+         putStrLn "Runoff\n"
+         print runoff
+
+
+reElection a = do
+  voters <- runX (parseXML "revotes.xml" >>> getVotes)
+  candidates <- runX (parseXML "newCandidates.xml" >>> getCandidates)
+  let myMap  = Map.empty
+  let listOfVoters = getListOfVoters voters candidates
+  let resultList = Results {rlist = getResults listOfVoters myMap}
+  let besteKandidaten = getRunoffCandidates resultList
+  let filtered = filterRunoffCanidatesVotes listOfVoters besteKandidaten
   let runoff = doRunoff (rlist besteKandidaten) filtered
   print besteKandidaten
   putStrLn "Gefilterte Votes nach dem RunOff\n"
@@ -35,14 +55,11 @@ main = do
   putStrLn "Runoff\n"
   print runoff
 
-reElection a = do
-  return expression
-
-getListOfVoters :: [Voter] -> [Voter]
-getListOfVoters [] = []
-getListOfVoters (x:xs)
-    | checkVotes (votes x) candidateList == False = getListOfVoters xs
-	  | otherwise = x : getListOfVoters xs
+getListOfVoters :: [Voter] -> [Candidate]-> [Voter]
+getListOfVoters [] _ = []
+getListOfVoters (x:xs) candidates
+    | checkVotes (votes x) candidates == False = getListOfVoters xs candidates
+    | otherwise = x : getListOfVoters xs candidates
 
 getResults :: [Voter] -> Map Candidate Double -> [(Candidate, Double)]
 getResults [] mymap = Map.toList mymap
@@ -155,6 +172,3 @@ countWins x (y:ys)
         canidateName = candidate(head(votes y))
         fstVoteResult = stars(head(votes(y)))
         sndVoteResult = stars(last(votes(y)))
-
-
-candidateList = [kandidat7,kandidat8,kandidat9,kandidat10]
