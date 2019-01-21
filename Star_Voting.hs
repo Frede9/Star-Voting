@@ -106,7 +106,10 @@ getCandidates = atTag "CANDIDATE" >>>
 
 
 
-
+-- Eingabeparameter: Results
+-- Ausgabeparameter: Results
+-- Zweck: Kontrolle, ob weniger als zwei Kandidaten vorhanden sind und weiterleiten an Hilfsfunktion
+-- Where: Sortierung der Liste, damit die letzten beiden Einträge(höchste Punktzahl) und der Rest getrennt werden kann
 getRunoffCandidates :: Results -> Results
 getRunoffCandidates xs
         | null(rlist xs) = xs
@@ -117,7 +120,10 @@ getRunoffCandidates xs
             otherCandidates = take (length sorted - 2) sorted
             runoffCandidates = drop (length sorted - 2) sorted
 
-
+-- Eingabeparameter: rlist von Result & rlist von Result bzw. jetzige RunoffKandidaten und restlichen Kandidaten
+-- Ausgabeparameter: rlist von Result mit den wirklichen Runoffkanidaten ob 2 oder mehr
+-- Zweck: Kontrolle, ob der letzte Eintrag der restlichen Kandidaten und der erste Runoff Kandidat dieselbe Punktzahl hat
+-- Wenn ja, dann hinzufügen und neu aufrufen, wenn nein, dann Rückgabe der RunoffKandidaten
 checkIfSameScore :: [(Candidate, Double)] -> [(Candidate, Double)] -> [(Candidate, Double)]
 checkIfSameScore [] ys = ys
 checkIfSameScore xs [] = []
@@ -127,11 +133,17 @@ checkIfSameScore xs (y:ys)
         | otherwise = (y:ys)
 
 
+-- Eingabeparameter: Liste der Voter und Runoff Kandidaten(Laenge 2) 
+-- Ausgabeparameter: Liste der gefilterten Voter
+-- Zweck: Erstellen einer Liste und weiterleiten an Hilfsfunktion, primär zum zerlegen der Liste gedacht(Uebersichtlicher)
 filterRunoffCandidatesVotes :: [Voter] -> Results -> [Voter]
 filterRunoffCandidatesVotes [] _ = []
 filterRunoffCandidatesVotes (x:xs) y = [Voter (helpFunctionFORCV (votes x) y)] ++ filterRunoffCandidatesVotes xs y
 
 
+-- Eingabeparameter: Liste der Votes und Runoff Kandidaten(Laenge 2) 
+-- Ausgabeparameter: Liste der gefilterten Votes
+-- Zweck: Nur die Votes mit den jeweiligen Kandidaten aus den Results sollen übrig bleiben um die weitere Auswertung zu erleichtern
 helpFunctionFORCV :: [Vote] -> Results -> [Vote]
 helpFunctionFORCV [] _ = []
 helpFunctionFORCV (x:xs) y
@@ -142,17 +154,18 @@ helpFunctionFORCV (x:xs) y
       firstCandidate = fst(head(rlist y))
       secondCandidate = fst(last(rlist y))
 
+-- Eingabeparameter: Liste der Voter
+-- Ausgabeparameter: Liste der sortierten voter
+-- Zweck: Alle einzelnen Glieder der Voter werden intern anhand des Kandidaten Names sortiert
 sort :: [Voter] -> [Voter]
 sort [] = []
 sort (x:xs) = [Voter (sortBy (compare `on` candidate) (votes x))] ++ sort xs
 
 
 
--- Zum Testen doRunoff (rlist(getRunoffCanidates countedResults)) filterVotes
--- filterVotes wird aus filterRunoffCanidatesVotes gezogen
--- Ablauf ist jetzt x = getRunoffCanidates countedResults
--- y = filterRunoffCanidatesVotes correctVotes x
--- doRunoff (rlist x) y
+-- Eingabeparameter: rlist von Results
+-- Ausgabeparameter: rlist von Results mit den berechneten Ergebnissen
+-- Zweck: Weiterleiten an Hilfsfunktion um die Liste aufzuspalten
 doRunoff :: [(Candidate, Double)] -> [Voter] -> [(Candidate, Double)]
 doRunoff [] _ = []
 doRunoff (x:xs) ys =  [(canidateName,countWins canidateName ys )] ++ doRunoff xs ys
@@ -160,7 +173,9 @@ doRunoff (x:xs) ys =  [(canidateName,countWins canidateName ys )] ++ doRunoff xs
     canidateName = fst(x)
 
 
-
+-- Eingabeparameter: Einzelner Kandidat und die Liste der Voter
+-- Ausgabeparameter: Double Wert wie häufig der eine Kandidat dem anderen Kandidaten ueberlegen war
+-- Zweck: Mehrere Vergleiche um herauszufinden welcher Kandidat hoeher gewertet worden ist pro Waehler
 countWins :: Candidate -> [Voter] -> Double
 countWins _ [] = 0
 countWins x (y:ys)
