@@ -98,15 +98,15 @@ getVotes = atTag "VOTER" >>>
 
 
 
-getRunoffCanidates :: Results -> Results
-getRunoffCanidates xs
+getRunoffCandidates :: Results -> Results
+getRunoffCandidates xs
         | null(rlist xs) = xs
         | length(rlist xs) <= 2 = xs
-        | otherwise = Results (checkIfSameScore otherCanidates runoffCanidates)
+        | otherwise = Results (checkIfSameScore otherCandidates runoffCandidates)
           where
             sorted = sortBy (compare `on` snd) (rlist xs)
-            otherCanidates = take (length sorted - 2) sorted
-            runoffCanidates = drop (length sorted - 2) sorted
+            otherCandidates = take (length sorted - 2) sorted
+            runoffCandidates = drop (length sorted - 2) sorted
 
 
 checkIfSameScore :: [(Candidate, Double)] -> [(Candidate, Double)] -> [(Candidate, Double)]
@@ -118,9 +118,9 @@ checkIfSameScore xs (y:ys)
         | otherwise = (y:ys)
 
 
-filterRunoffCanidatesVotes :: [Voter] -> Results -> [Voter]
-filterRunoffCanidatesVotes [] _ = []
-filterRunoffCanidatesVotes (x:xs) y = [Voter (helpFunctionFORCV (votes x) y)] ++ filterRunoffCanidatesVotes xs y
+filterRunoffCandidatesVotes :: [Voter] -> Results -> [Voter]
+filterRunoffCandidatesVotes [] _ = []
+filterRunoffCandidatesVotes (x:xs) y = [Voter (helpFunctionFORCV (votes x) y)] ++ filterRunoffCandidatesVotes xs y
 
 
 helpFunctionFORCV :: [Vote] -> Results -> [Vote]
