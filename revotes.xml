@@ -1,0 +1,70 @@
+<VOTERS>
+
+<VOTER>
+<VOTE CANDIDATE="Marty" RATING="3" >
+        </VOTE>
+<VOTE CANDIDATE="Dieter" RATING="2" >
+        </VOTE>
+<VOTE CANDIDATE="Klaus" RATING="2" >
+        </VOTE>
+</VOTER>
+
+<VOTER>
+<VOTE CANDIDATE="Marty" RATING="12" >
+        </VOTE>
+<VOTE CANDIDATE="Dieter" RATING="1" >
+        </VOTE>
+<VOTE CANDIDATE="Klaus" RATING="1" >
+        </VOTE>
+</VOTER>
+
+<VOTER>
+<VOTE CANDIDATE="Marty" RATING="3" >
+        </VOTE>
+<VOTE CANDIDATE="Peter" RATING="1" >
+        </VOTE>
+<VOTE CANDIDATE="Dieter" RATING="1" >
+        </VOTE>
+<VOTE CANDIDATE="Klaus" RATING="1" >
+        </VOTE>
+<VOTE CANDIDATE="Klaus" RATING="1" >
+        </VOTE>
+</VOTER>
+
+<VOTER>
+<VOTE CANDIDATE="Marty" RATING="3" >
+        </VOTE>
+<VOTE CANDIDATE="Dieter" RATING="1" >
+        </VOTE>
+<VOTE CANDIDATE="Klaus" RATING="2" >
+        </VOTE>
+</VOTER>
+
+<VOTER>
+<VOTE CANDIDATE="Marty" RATING="1" >
+        </VOTE>
+<VOTE CANDIDATE="Dieter" RATING="1" >
+        </VOTE>
+<VOTE CANDIDATE="Klaus" RATING="1" >
+        </VOTE>
+      </VOTER>
+
+<VOTER>
+<VOTE CANDIDATE="Marty" RATING="1" >
+        </VOTE>
+<VOTE CANDIDATE="Dieter" RATING="1" >
+        </VOTE>
+<VOTE CANDIDATE="Klaus" RATING="1" >
+        </VOTE>
+      </VOTER>
+
+<VOTER>
+<VOTE CANDIDATE="Marty" RATING="1" >
+        </VOTE>
+<VOTE CANDIDATE="Dieter" RATING="1" >
+        </VOTE>
+<VOTE CANDIDATE="Klaus" RATING="1" >
+        </VOTE>
+      </VOTER>
+
+</VOTERS>
