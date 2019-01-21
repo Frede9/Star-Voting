@@ -21,28 +21,29 @@ data Voter = Voter {
   votes :: [Vote]
 } deriving (Show, Eq)
 
+-- Funktion zum Einlesen/Verwalten der Daten
 election votesxml candidatesxml = do
-  voters <- runX (parseXML votesxml >>> getVoters)
+  voters <- runX (parseXML votesxml >>> getVoters)   -- Einlesen der Voters aus XML-Datei
   --print voters
-  candidates <- runX (parseXML candidatesxml >>> getCandidates)
+  candidates <- runX (parseXML candidatesxml >>> getCandidates)   -- Einlesen der Kandidaten aus XML-Datei
   --print candidates
   let myMap  = Map.empty
-      listOfVoters = getListOfVoters voters candidates
-      resultList = Results {rlist = getResults listOfVoters myMap}
-  if (length candidates > 2)
+      listOfVoters = getListOfVoters voters candidates   -- Erstellen der korrigierten Liste von Votern
+      resultList = Results {rlist = getResults listOfVoters myMap}   -- Erstellen der Liste mit erster Bewertung
+  if (length candidates > 2)   -- Falls es mehr als zwei Kandidaten gibt
     then do
-         let besteKandidaten = getRunoffCandidates resultList
-         if (length (rlist besteKandidaten) > 2)
+         let besteKandidaten = getRunoffCandidates resultList   -- Erstellen der Liste mit den Kandidaten mit bester Punktzahl
+         if (length (rlist besteKandidaten) > 2)   -- Falls mehrere Kandidaten gleiche Punktzahl haben
            then do
-                newPath
+                newPath   -- Eingabe der neuen XML-Dateien
            else do
                 let filtered = sort (filterRunoffCandidatesVotes listOfVoters besteKandidaten)
                     runoff = doRunoff (rlist besteKandidaten) filtered
-                print runoff
+                print runoff   -- Ausgabe der Ergebnisse
     else do
          let filtered = sort (filterRunoffCandidatesVotes listOfVoters resultList)
              runoff = doRunoff (rlist resultList) filtered
-         print runoff
+         print runoff    -- Ausgabe der Ergebnisse
 
 -- Eingabe der neuen Pfade von Wahlen sowie Kandidaten
 newPath = putStr "Pfad der neuen Wahlen: "
