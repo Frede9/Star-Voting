@@ -21,39 +21,43 @@ data Voter = Voter {
   votes :: [Vote]
 } deriving (Show, Eq)
 
-main = do
-  voters <- runX (parseXML "votes.xml" >>> getVotes)
-  candidates <- runX (parseXML "candidates.xml" >>> getCandidates)
+election votesxml candidatesxml = do
+  voters <- runX (parseXML votesxml >>> getVotes)
+  --print voters
+  candidates <- runX (parseXML candidatesxml >>> getCandidates)
+  --print candidates
   let myMap  = Map.empty
-  let listOfVoters = getListOfVoters voters candidates
-  let resultList = Results {rlist = getResults listOfVoters myMap}
-  let besteKandidaten = getRunoffCanidates resultList
-  if (length (rlist besteKandidaten) > 2)
-    then do reElection
+      listOfVoters = getListOfVoters voters candidates
+      resultList = Results {rlist = getResults listOfVoters myMap}
+  if (length candidates > 2)
+    then do
+         let besteKandidaten = getRunoffCandidates resultList
+         if (length (rlist besteKandidaten) > 2)
+           then do
+                newPath
+           else do
+                let filtered = sort (filterRunoffCandidatesVotes listOfVoters besteKandidaten)
+                    runoff = doRunoff (rlist besteKandidaten) filtered
+                print runoff --printing besteKandidaten filtered runoff
     else do
-         let filtered = filterRunoffCanidatesVotes listOfVoters besteKandidaten
-         let runoff = doRunoff (rlist besteKandidaten) filtered
-         print besteKandidaten
-         putStrLn "Gefilterte Votes nach dem RunOff\n"
-         print filtered
-         putStrLn "Runoff\n"
-         print runoff
+         let filtered = sort (filterRunoffCandidatesVotes listOfVoters resultList)
+             runoff = doRunoff (rlist resultList) filtered
+         print runoff --printing resultList filtered runoff
 
+--Ausgabe von allen Daten
+printing best filtered runoff = do
+                              print best
+                              putStrLn "Gefilterte Votes nach dem RunOff"
+                              print filtered
+                              putStrLn "Runoff\n"
+                              print runoff
 
-reElection a = do
-  voters <- runX (parseXML "revotes.xml" >>> getVotes)
-  candidates <- runX (parseXML "newCandidates.xml" >>> getCandidates)
-  let myMap  = Map.empty
-  let listOfVoters = getListOfVoters voters candidates
-  let resultList = Results {rlist = getResults listOfVoters myMap}
-  let besteKandidaten = getRunoffCandidates resultList
-  let filtered = filterRunoffCanidatesVotes listOfVoters besteKandidaten
-  let runoff = doRunoff (rlist besteKandidaten) filtered
-  print besteKandidaten
-  putStrLn "Gefilterte Votes nach dem RunOff\n"
-  print filtered
-  putStrLn "Runoff\n"
-  print runoff
+newPath = putStr "Pfad der neuen Wahlen: "
+       >> getLine
+       >>= \revotes -> putStr "Pfad der neuen Kandidaten: "
+       >> getLine
+       >>= \candidates -> election revotes candidates
+
 
 getListOfVoters :: [Voter] -> [Candidate]-> [Voter]
 getListOfVoters [] _ = []
@@ -94,6 +98,11 @@ getVotes = atTag "VOTER" >>>
   proc vs -> do
     votes <- listA getVote    -< vs
     returnA -< Voter {votes = votes}
+
+getCandidates = atTag "CANDIDATE" >>>
+  proc v -> do
+    candidate    <- getAttrValue "CANDIDATE" -< v
+    returnA -< Candidate candidate
 
 
 
