@@ -44,7 +44,7 @@ election votesxml candidatesxml = do
              runoff = doRunoff (rlist resultList) filtered
          print runoff --printing resultList filtered runoff
 
---Ausgabe von allen Daten
+-- Ausgabe von allen Daten
 printing best filtered runoff = do
                               print best
                               putStrLn "Gefilterte Votes nach dem RunOff"
@@ -52,27 +52,25 @@ printing best filtered runoff = do
                               putStrLn "Runoff\n"
                               print runoff
 
+-- Eingabe der neuen Pfade von Wahlen sowie Kandidaten
 newPath = putStr "Pfad der neuen Wahlen: "
        >> getLine
        >>= \revotes -> putStr "Pfad der neuen Kandidaten: "
        >> getLine
        >>= \candidates -> election revotes candidates
 
-
+-- Eingabeparameter: Erste Liste von allen Votern, Liste von Kandidaten
+-- Ausgabeparameter: Liste von Votern mit korrekten Votes
+-- Zweck: Ausgabe der Voter mit den korrekten Votes mit Hilfsmethode checkVotes
 getListOfVoters :: [Voter] -> [Candidate]-> [Voter]
 getListOfVoters [] _ = []
 getListOfVoters (x:xs) candidates
     | checkVotes (votes x) candidates == False = getListOfVoters xs candidates
     | otherwise = x : getListOfVoters xs candidates
 
-getResults :: [Voter] -> Map Candidate Double -> [(Candidate, Double)]
-getResults [] mymap = Map.toList mymap
-getResults (x:xs) mymap = getResults xs (insertVotes (votes x) (mymap))
-
-insertVotes :: [Vote] -> Map Candidate Double -> Map Candidate Double
-insertVotes [] mymap = mymap
-insertVotes (x:xs) mymap = insertVotes xs (Map.insertWith (+) (candidate x) (stars x) mymap)
-
+-- Eingabeparameter: Liste von Votes eines Voters, Liste von den Kandidaten
+-- Ausgabeparameter: Ausgabe ob die Votes korrekt sind
+-- Zweck: Überprüfen der Votes eines Voters 
 checkVotes :: [Vote] -> [Candidate] -> Bool
 checkVotes [] [] = True
 checkVotes x [] = False
@@ -82,11 +80,30 @@ checkVotes (x:xs) candidates
      | (elem) (candidate x) (candidates) = checkVotes (xs) (filter  (not.(==(candidate x))) candidates)
      | otherwise = False
 
+-- Eingabeparameter: Liste von Votern mit korrekten Votes, Map zur Berechnung der Votes
+-- Ausgabeparameter: Liste von den Kandidaten mit der Gesamtbewertung
+-- Zweck: Berechnen und Ausgabe der Kandidaten+Bewertungen mit der Methode insertVotes
+getResults :: [Voter] -> Map Candidate Double -> [(Candidate, Double)]
+getResults [] mymap = Map.toList mymap
+getResults (x:xs) mymap = getResults xs (insertVotes (votes x) (mymap))
+
+-- Eingabeparameter: Liste von Votes eines Voters zum Einfügen in die Map, Map zur Berechnung der Votes
+-- Ausgabeparameter: Map mit den Kandidaten+Bewertung eines Voters
+-- Zweck: Addieren der einzelnen Bewertungen für einen bestimmten Kandidaten mit Hilfe einer Map
+insertVotes :: [Vote] -> Map Candidate Double -> Map Candidate Double
+insertVotes [] mymap = mymap
+insertVotes (x:xs) mymap = insertVotes xs (Map.insertWith (+) (candidate x) (stars x) mymap)
+
+
 parseXML file = readDocument [ withValidate no
                              , withRemoveWS yes  -- throw away formating WS
                              ] file
-
+                             
+-- Eingabeparameter: tag in der XML-Datei
+-- Ausgabeparameter: Map Candidate Double
+-- Zweck: Durchqueren und Selektieren der Knoten mit bestimmtem Tag
 atTag tag = deep (isElem >>> hasName tag)
+
 
 getVote = atTag "VOTE" >>>
   proc v -> do
