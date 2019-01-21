@@ -22,7 +22,7 @@ data Voter = Voter {
 } deriving (Show, Eq)
 
 election votesxml candidatesxml = do
-  voters <- runX (parseXML votesxml >>> getVotes)
+  voters <- runX (parseXML votesxml >>> getVoters)
   --print voters
   candidates <- runX (parseXML candidatesxml >>> getCandidates)
   --print candidates
@@ -94,34 +94,38 @@ insertVotes :: [Vote] -> Map Candidate Double -> Map Candidate Double
 insertVotes [] mymap = mymap
 insertVotes (x:xs) mymap = insertVotes xs (Map.insertWith (+) (candidate x) (stars x) mymap)
 
-
+-- Einlesen und Parsen der XML-Datei
 parseXML file = readDocument [ withValidate no
                              , withRemoveWS yes  -- throw away formating WS
                              ] file
                              
--- Eingabeparameter: tag in der XML-Datei
--- Ausgabeparameter: Map Candidate Double
--- Zweck: Durchqueren und Selektieren der Knoten mit bestimmtem Tag
+-- Eingabeparameter: gesuchter tag in der XML-Datei
+-- Ausgabeparameter: Ausgabe der Elemente des tags
+-- Zweck: Durchqueren und Selektieren der Knoten mit bestimmtem tag
 atTag tag = deep (isElem >>> hasName tag)
 
-
-getVote = atTag "VOTE" >>>
+-- Zweck: Parsen der Votes in der XML-Datei in Objekte vom Typ Vote
+-- Durch proc werden die einzelnen tags durchsucht
+-- und anschließend returned
+getVotes = atTag "VOTE" >>>
   proc v -> do
     candidate    <- getAttrValue "CANDIDATE" -< v
     vote    <- getAttrValue  "RATING"    -< v
     returnA -< Vote {candidate = Candidate candidate, stars = read vote::Double}
 
-getVotes = atTag "VOTER" >>>
-  proc vs -> do
-    votes <- listA getVote    -< vs
+-- Zweck: Parsen der Voter in der XML-Datei in Objekte vom Typ Voter
+-- Voter haben nur eine Liste von Votes. Daher werden über getVotes die
+-- einzelnen Votes geholt und anschließend die Voter returned
+getVoters = atTag "VOTER" >>>
+  proc vr -> do
+    votes <- listA getVotes    -< vr
     returnA -< Voter {votes = votes}
 
+-- Zweck: Parsen der Candidates in der XML-Datei in Objekte vom Typ Candidate
 getCandidates = atTag "CANDIDATE" >>>
-  proc v -> do
-    candidate    <- getAttrValue "CANDIDATE" -< v
+  proc c -> do
+    candidate    <- getAttrValue "CANDIDATE" -< c
     returnA -< Candidate candidate
-
-
 
 -- Eingabeparameter: Results
 -- Ausgabeparameter: Results
