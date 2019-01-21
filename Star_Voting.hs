@@ -38,19 +38,11 @@ election votesxml candidatesxml = do
            else do
                 let filtered = sort (filterRunoffCandidatesVotes listOfVoters besteKandidaten)
                     runoff = doRunoff (rlist besteKandidaten) filtered
-                print runoff --printing besteKandidaten filtered runoff
+                print runoff
     else do
          let filtered = sort (filterRunoffCandidatesVotes listOfVoters resultList)
              runoff = doRunoff (rlist resultList) filtered
-         print runoff --printing resultList filtered runoff
-
--- Ausgabe von allen Daten
-printing best filtered runoff = do
-                              print best
-                              putStrLn "Gefilterte Votes nach dem RunOff"
-                              print filtered
-                              putStrLn "Runoff\n"
-                              print runoff
+         print runoff
 
 -- Eingabe der neuen Pfade von Wahlen sowie Kandidaten
 newPath = putStr "Pfad der neuen Wahlen: "
@@ -95,13 +87,13 @@ insertVotes [] mymap = mymap
 insertVotes (x:xs) mymap = insertVotes xs (Map.insertWith (+) (candidate x) (stars x) mymap)
 
 -- Einlesen und Parsen der XML-Datei
-parseXML file = readDocument [ withValidate no
+parseXML file = readDocument [ withValidate no   -- turns off validation
                              , withRemoveWS yes  -- throw away formating WS
                              ] file
                              
 -- Eingabeparameter: gesuchter tag in der XML-Datei
 -- Ausgabeparameter: Ausgabe der Elemente des tags
--- Zweck: Durchqueren und Selektieren der Knoten mit bestimmtem tag
+-- Zweck: Durchqueren und Selektieren der Knoten mit bestimmtem tag, deep erhält einen Filter
 atTag tag = deep (isElem >>> hasName tag)
 
 -- Zweck: Parsen der Votes in der XML-Datei in Objekte vom Typ Vote
