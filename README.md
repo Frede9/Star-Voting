@@ -19,3 +19,4 @@ Hinweise:
 
 
 - https://www.fairvote.org/explaining_fairvote_s_position_on_star_voting
+- Vergleich verschiedener Votings: https://www.equal.vote/tags/star_voting
