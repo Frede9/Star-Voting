@@ -13,6 +13,8 @@ for x in range(0,durchlauefe):
         rnd = random.randint(0,5)
         string_file += "<VOTE CANDIDATE=\""+kandidaten[y]+"\" RATING=\""+str(rnd)+"\"></VOTE>\n"
     string_file += "</VOTER>\n"
+    text_file.write(string_file)
+    string_file = ""
 string_file += "</VOTERS>\n"
 
 
